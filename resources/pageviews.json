@@ -1,0 +1,4 @@
+{"time": "2016-07-09T17:13:21Z", "url": "/foo/bar", "user": "alice", "latencyMs": 32}
+{"time": "2016-07-08T04:13:21Z", "url": "/", "user": "bob", "latencyMs": 11}
+{"time": "2000-01-01T00:00:00Z", "url": "/foo/bar", "user": "bob", "latencyMs": 45}
+

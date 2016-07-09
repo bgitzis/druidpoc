@@ -1,0 +1,36 @@
+﻿Wikipedia data set
+
+Example Query 
+###########
+{
+  "queryType" : "topN",
+  "dataSource" : "wikiticker",
+  "intervals" : ["2015-09-12/2015-09-13"],
+  "granularity" : "all",
+  "dimension" : "page",
+  "metric" : "edits",
+  "threshold" : 3,
+  "aggregations" : [
+    {
+      "type" : "longSum",
+      "name" : "edits",
+      "fieldName" : "count"
+    }
+  ]
+}
+---------------------------------------------------------------------------------------
+Example Responce:
+##############
+[ {
+  "timestamp" : "2015-09-12T00:46:58.771Z",
+  "result" : [ {
+    "edits" : 33,
+    "page" : "Wikipedia:Vandalismusmeldung"
+  }, {
+    "edits" : 28,
+    "page" : "User:Cyde/List of candidates for speedy deletion/Subpage"
+  }, {
+    "edits" : 27,
+    "page" : "Jeremy Corbyn"
+  }  ]
+ }]

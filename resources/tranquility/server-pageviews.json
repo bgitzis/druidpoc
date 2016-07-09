@@ -1,0 +1,44 @@
+{
+  "dataSources": [
+    {
+      "spec": {
+        "dataSchema": {
+          "dataSource": "pageviews1",
+          "parser": {
+            "type": "string",
+            "parseSpec": {
+              "timestampSpec": {"column": "time", "format": "auto"},
+              "dimensionsSpec": {
+                "dimensions": ["url", "user"]
+              },
+              "format": "json"
+            }
+          },
+          "granularitySpec": {"type": "uniform", "segmentGranularity": "hour", "queryGranularity": "none"},
+          "metricsSpec": [
+            {"name": "count", "type": "count"},
+            {"name": "latencyMs", "type": "doubleSum", "fieldName": "latencyMs"}
+          ]
+        },
+        "ioConfig": {"type": "realtime"},
+        "tuningConfig": {
+          "type": "realtime",
+          "maxRowsInMemory": "1000",
+          "intermediatePersistPeriod": "PT10S",
+          "windowPeriod": "P10Y"
+        }
+      },
+      "properties": {
+        "task.partitions": "1",
+        "task.replicants": "1"
+      }
+    }
+  ],
+  "properties": {
+    "zookeeper.connect": "localhost",
+    "druid.discovery.curator.path": "/druid/discovery",
+    "druid.selectors.indexing.serviceName": "druid/overlord",
+    "http.port": "8200",
+    "http.threads": "6"
+  }
+}
