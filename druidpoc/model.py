@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 VALID_RECORD_TYPES = {'trade', 'sell_order', 'buy_order'}
@@ -29,13 +30,21 @@ class MarketEvent(object):
             raise TypeError('price must positive non zero, got %d' % price)
         self.price = price
         if time is None:
-            self.time = datetime.utcnow()
+            self.time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         else:
             self.time = time
 
     def __str__(self):
-        return '%s(%s)' % (type(self).__name__, ', '.join(sorted('%s=%s' % item for item in vars(self).items())))
+        return '%s(%s)' % (type(self).__name__, ', '.join(
+            [self.record_type, self.customer_name, self.product_name, str(self.qty), str(self.price),
+             self.customer_location, str(self.customer_num_employees), self.time]))
+
+    def __repr__(self):
+        return str(self)
 
 
 if __name__ == '__main__':
-    print MarketEvent('trade', 'gold', 'c1', 500, 'Russia', -10, 16.7)
+    market_event = MarketEvent('trade', 'gold', 'IDI', 500, 'Russia', -10, 16.7)
+    print market_event
+    print json.dumps(vars(market_event), sort_keys=True)
+    print json.dumps(vars(market_event).keys(), sort_keys=True)

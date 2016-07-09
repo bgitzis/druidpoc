@@ -10,7 +10,7 @@
               "timestampSpec": {"column": "time", "format": "auto"},
               "dimensionsSpec": {
                 "dimensions": [
-                  "customer_name", "customer_num_employees", "customer_location", "product_name", "record_type"
+                  "record_type", "product_name", "customer_name", "customer_num_employees", "customer_location"
                 ]
               },
               "format": "json"
@@ -19,7 +19,8 @@
           "granularitySpec": {"type": "uniform", "segmentGranularity": "hour", "queryGranularity": "none"},
           "metricsSpec": [
             {"name": "count", "type": "count"},
-            {"name": "latencyMs", "type": "doubleSum", "fieldName": "latencyMs"}
+            {"name": "qty", "type": "longMax", "fieldName": "qty"},
+            {"name": "price", "type": "longMax", "fieldName": "price"}
           ]
         },
         "ioConfig": {"type": "realtime"},
@@ -27,7 +28,7 @@
           "type": "realtime",
           "maxRowsInMemory": "1000",
           "intermediatePersistPeriod": "PT10S",
-          "windowPeriod": "P10Y"
+          "windowPeriod": "P30D"
         }
       },
       "properties": {
