@@ -4,16 +4,17 @@ import requests
 from pydruid.client import PyDruid
 from pydruid.utils.filters import Dimension
 
-from druidpoc.batch_load_druid import base_path, OVERLORD_URL
+from druidpoc.batch_load_druid import base_path
 from druidpoc.functionality_checks import TABLE_NAME
 
 TRANQUILITY_URL = 'http://192.168.160.128:8200/v1/post'
 DRUID_BROKER_URL = 'http://192.168.160.128:8082'
+OVERLORD_URL = 'http://192.168.160.128:8090/druid/indexer/v1/task'
 
 
-class MeDruidClient(PyDruid):
+class MeDruidHelper(PyDruid):
     """
-    Auxilary class for working with Market events in Druid
+    Auxilary class for working with Market Events in Druid
     """
     events_dir = 'G:/work'
     in_vm_dir = '/mnt/hgfs/G/work'
@@ -27,9 +28,9 @@ class MeDruidClient(PyDruid):
             raise DruidPocException('unable to load indexing task proto from ' + task_proto_path)
 
         # model for indexing task is needed for production use
-        indexing_task_spec['spec']['ioConfig']['inputSpec']['paths'] = MeDruidClient.in_vm_dir + '/' + file_name
+        indexing_task_spec['spec']['ioConfig']['inputSpec']['paths'] = MeDruidHelper.in_vm_dir + '/' + file_name
 
-        with open(MeDruidClient.events_dir + '/' + file_name, 'w') as events_fh:
+        with open(MeDruidHelper.events_dir + '/' + file_name, 'w') as events_fh:
             for event in market_events:
                 events_fh.write(json.dumps(vars(event), sort_keys=True) + '\n')
 
