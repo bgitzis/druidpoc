@@ -1,0 +1,3 @@
+{"customer_location": "Japan", "customer_name": "Sumitomo", "customer_num_employees": 50000, "price": 200, "product_name": "copper", "qty": -6000, "record_type": "trade", "time": "2016-07-05T23:05:44Z"}
+{"customer_location": "Japan", "customer_name": "Sumitomo", "customer_num_employees": 50000, "price": 200, "product_name": "copper", "qty": -65000, "record_type": "trade", "time": "2016-05-15T23:05:44Z"}
+{"customer_location": "Japan", "customer_name": "Sumitomo", "customer_num_employees": 50000, "price": 200, "product_name": "copper", "qty": 48000, "record_type": "trade", "time": "2016-05-12T23:05:44Z"}
