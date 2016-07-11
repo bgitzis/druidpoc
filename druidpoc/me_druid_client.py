@@ -14,6 +14,7 @@ TABLE_NAME = 'marketevents'
 base_path = '/'.join([os.path.split(__file__)[0], '..', 'resources', 'index_tasks'])
 
 
+# TODO load urls from config and convert static methods to instance methods
 class MeDruidHelper(PyDruid):
     """
     Market Events on Druid Helper
@@ -58,12 +59,13 @@ class MeDruidHelper(PyDruid):
             task_id = json.loads(submit_response.text)['task']
             tracking_url = '%s/%s/status' % (OVERLORD_URL, task_id)
             print 'Indexing should begin shortly. Tracking URL: %s' % tracking_url
-            MeDruidHelper.track_indexing_task(tracking_url)
+            MeDruidHelper.track_indexing_task(task_id)
         else:
             print 'Failed submitting task, reason:' + submit_response.reason
 
     @staticmethod
-    def track_indexing_task(tracking_url):
+    def track_indexing_task(task_id):
+        tracking_url = '%s/%s/status' % (OVERLORD_URL, task_id)
         status_response = requests.get(tracking_url)
         print status_response.json()
         task_status = status_response.json()['status']['status']
@@ -89,6 +91,12 @@ class MeDruidHelper(PyDruid):
         print "[%d] %s\n" % (load_response.status_code, load_response.text)
 
     @staticmethod
+    def shutdown_streaming_task(task_id):
+        task_shutdown_url = '%s/%s/shutdown' % (OVERLORD_URL, task_id)
+        response = requests.post(task_shutdown_url)
+        print '[%d] %s' % (response.status_code, response.json())
+
+    @staticmethod
     def select_one_market_event(product_name):
         client = PyDruid(DRUID_BROKER_URL, 'druid/v2')
         query = client.select(
@@ -99,10 +107,12 @@ class MeDruidHelper(PyDruid):
             paging_spec={"pagingIdentifiers": {}, "threshold": 1},
             intervals=["2016-07-08/2017-09-13"]
         )
-        return [segment_result['result']['events'] for segment_result in query.result]
+
+        events = [segment_result['result']['events'] for segment_result in query.result]
+        if len(events) >= 1:
+            return events[0]
+        return []
 
 
 class DruidPocException(Exception):
     pass
-
-

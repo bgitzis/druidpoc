@@ -17,7 +17,7 @@ class MarketEvent(object):
         :type customer_location: basestring
         :type qty: int
         :type price: float
-        :type time: datetime
+        :type time: Union[str,unicode]
         """
         if record_type in VALID_RECORD_TYPES:
             self.record_type = record_type
