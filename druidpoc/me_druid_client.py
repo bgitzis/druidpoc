@@ -1,26 +1,40 @@
 import json
+import os
+import time
 
 import requests
 from pydruid.client import PyDruid
 from pydruid.utils.filters import Dimension
 
-from druidpoc.batch_load_druid import base_path
-from druidpoc.functionality_checks import TABLE_NAME
-
 TRANQUILITY_URL = 'http://192.168.160.128:8200/v1/post'
 DRUID_BROKER_URL = 'http://192.168.160.128:8082'
 OVERLORD_URL = 'http://192.168.160.128:8090/druid/indexer/v1/task'
 
+TABLE_NAME = 'marketevents'
+base_path = '/'.join([os.path.split(__file__)[0], '..', 'resources', 'index_tasks'])
+
 
 class MeDruidHelper(PyDruid):
     """
+    Market Events on Druid Helper
     Auxilary class for working with Market Events in Druid
     """
     events_dir = 'G:/work'
     in_vm_dir = '/mnt/hgfs/G/work'
 
     @staticmethod
-    def submit_indexing_task(file_name, market_events):
+    def index_market_events(file_name, market_events):
+        """
+        Creates data file from list of market_events at location accessible to Druid and submits indexing task
+
+        :type file_name: Union[str,unicode]
+        :type market_events: list
+
+        :param file_name: name of the data file
+        :param market_events: list of events
+        :return:
+        """
+
         task_proto_path = base_path + '/market_event_indexing_task_proto.json'
         with open(task_proto_path) as fh:
             indexing_task_spec = json.loads(fh.read())
@@ -34,19 +48,33 @@ class MeDruidHelper(PyDruid):
             for event in market_events:
                 events_fh.write(json.dumps(vars(event), sort_keys=True) + '\n')
 
-        response = requests.post(OVERLORD_URL, headers={'Content-Type': 'application/json'},
-                                 data=json.dumps(indexing_task_spec))
-        if response.status_code == 200 and response.reason == 'OK':
-            task_id = json.loads(response.text)['task']
-            print 'Indexing should begin shortly. Tracking URL: %(overlord_url)s/%(task_id)s/status' % {
-                'overlord_url': OVERLORD_URL,
-                'task_id': task_id
-            }
-        else:
-            print 'Failed submitting task, reason:' + response.reason
+        MeDruidHelper.synchronous_indexing_task(indexing_task_spec)
 
     @staticmethod
-    def post_to_tranquility(record, table_name):
+    def synchronous_indexing_task(indexing_task_spec):
+        submit_response = requests.post(OVERLORD_URL, headers={'Content-Type': 'application/json'},
+                                        data=json.dumps(indexing_task_spec))
+        if submit_response.status_code == 200 and submit_response.reason == 'OK':
+            task_id = json.loads(submit_response.text)['task']
+            tracking_url = '%s/%s/status' % (OVERLORD_URL, task_id)
+            print 'Indexing should begin shortly. Tracking URL: %s' % tracking_url
+            MeDruidHelper.track_indexing_task(tracking_url)
+        else:
+            print 'Failed submitting task, reason:' + submit_response.reason
+
+    @staticmethod
+    def track_indexing_task(tracking_url):
+        status_response = requests.get(tracking_url)
+        print status_response.json()
+        task_status = status_response.json()['status']['status']
+        while status_response.status_code == 200 and task_status not in ['SUCCESS', 'FAILED']:
+            time.sleep(10)
+            status_response = requests.get(tracking_url)
+            task_status = status_response.json()['status']['status']
+            print '[%d] %s - %s' % (status_response.status_code, task_status, status_response.json())
+
+    @staticmethod
+    def post_to_tranquility(record, table_name=TABLE_NAME):
         """
         used for streaming into Druid through tranquility
         :param record:
@@ -76,3 +104,5 @@ class MeDruidHelper(PyDruid):
 
 class DruidPocException(Exception):
     pass
+
+
