@@ -2,7 +2,7 @@ import random
 import time
 from copy import copy
 from datetime import datetime, timedelta
-from unittest import TestCase
+from unittest import TestCase, skip
 
 from dateutil.relativedelta import relativedelta
 
@@ -43,6 +43,7 @@ class ApiDemo(TestCase):
     def test_shutdown_streaming_task(self):
         MeDruidHelper.shutdown_streaming_task('index_realtime_marketevents_2016-07-11T10%3A00%3A00.000Z_0_0')
 
+    @skip("test separately, after batch indexing is complete")
     def test_streaming(self):
         product_name = 'ore'
         MeDruidHelper.post_to_tranquility(MarketEvent('trade', product_name, 'South Land', 500, 'Russia', -10, 16.7))
