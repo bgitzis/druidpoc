@@ -57,10 +57,10 @@ class MeDruidHelper(object):
             for event in market_events:
                 events_fh.write(json.dumps(vars(event), sort_keys=True) + '\n')
 
-        MeDruidHelper.synchronous_indexing_task(indexing_task_spec)
+        MeDruidHelper.submit_synchronous_indexing_task(indexing_task_spec)
 
     @staticmethod
-    def synchronous_indexing_task(indexing_task_spec):
+    def submit_synchronous_indexing_task(indexing_task_spec):
         submit_response = requests.post(OVERLORD_URL, headers={'Content-Type': 'application/json'},
                                         data=json.dumps(indexing_task_spec))
         if submit_response.status_code == 200 and submit_response.reason == 'OK':
