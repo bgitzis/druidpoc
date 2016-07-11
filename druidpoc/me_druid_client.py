@@ -1,10 +1,15 @@
 import json
 import os
 import time
+from datetime import datetime, timedelta
 
 import requests
 from pydruid.client import PyDruid
-from pydruid.utils.filters import Dimension
+from pydruid.utils.aggregators import doublesum
+
+from druidpoc.filters import Dimension
+
+YMD_FORMAT = '%Y-%m-%d'
 
 TRANQUILITY_URL = 'http://192.168.160.128:8200/v1/post'
 DRUID_BROKER_URL = 'http://192.168.160.128:8082'
@@ -15,13 +20,16 @@ base_path = '/'.join([os.path.split(__file__)[0], '..', 'resources', 'index_task
 
 
 # TODO load urls from config and convert static methods to instance methods
-class MeDruidHelper(PyDruid):
+class MeDruidHelper(object):
     """
     Market Events on Druid Helper
     Auxilary class for working with Market Events in Druid
     """
     events_dir = 'G:/work'
     in_vm_dir = '/mnt/hgfs/G/work'
+
+    def __init__(self):
+        self.client = PyDruid(DRUID_BROKER_URL, 'druid/v2')
 
     @staticmethod
     def index_market_events(file_name, market_events):
@@ -96,10 +104,8 @@ class MeDruidHelper(PyDruid):
         response = requests.post(task_shutdown_url)
         print '[%d] %s' % (response.status_code, response.json())
 
-    @staticmethod
-    def select_one_market_event(product_name):
-        client = PyDruid(DRUID_BROKER_URL, 'druid/v2')
-        query = client.select(
+    def select_one_market_event(self, product_name):
+        query = self.client.select(
             datasource=TABLE_NAME,
             granularity='all',
             dimensions=['product_name'],
@@ -112,6 +118,28 @@ class MeDruidHelper(PyDruid):
         if len(events) >= 1:
             return events[0]
         return []
+
+    def positions_delta(self, product_name, min_num_employees, start_dt, end_dt):
+        """
+        :type product_name: Union[str,unicode]
+        :type min_num_employees: int
+        :type start_dt: datetime
+        :type end_dt: datetime
+        """
+        f1 = ((Dimension('product_name') == product_name) & (Dimension('customer_num_employees') > min_num_employees))
+        query = self.client.timeseries(
+            datasource=TABLE_NAME,
+            granularity='month',
+            intervals=[start_dt.strftime(YMD_FORMAT) + '/' + end_dt.strftime(YMD_FORMAT)],
+            filter=f1,
+            aggregations={"qty": doublesum("qty")},
+        )
+
+        return query.result
+
+    @staticmethod
+    def yesterday():
+        return (datetime.now() - timedelta(days=1)).strftime(YMD_FORMAT)
 
 
 class DruidPocException(Exception):

@@ -1,0 +1,11 @@
+{
+  "aggregations": [{"fieldName": "qty", "type": "doubleSum", "name": "qty"}],
+  "filter": {
+    "fields": [
+      {"type": "selector", "dimension": "product_name", "value": "gold"},
+      {"alphaNumeric": true, "lower": 1000, "type": "bound", "dimension": "customer_num_employees"}
+    ], "type": "and"
+  },
+  "intervals": ["2016-02-01/2016-07-10"], "dataSource": "marketevents", "granularity": "month",
+  "queryType": "timeseries"
+}

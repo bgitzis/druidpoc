@@ -38,7 +38,7 @@ class ApiDemo(TestCase):
         event_time = (datetime.utcnow() - relativedelta(month=1)).strftime(model.DT_FORMAT)
         event = MarketEvent('trade', product_name, 'Sumitomo', 50000, 'Japan', qty=-10000, price=200, time=event_time)
         MeDruidHelper.index_market_events('marketevents2.json', [event])
-        print MeDruidHelper.select_one_market_event(product_name)
+        print MeDruidHelper().select_one_market_event(product_name)
 
     def test_shutdown_streaming_task(self):
         MeDruidHelper.shutdown_streaming_task('index_realtime_marketevents_2016-07-11T10%3A00%3A00.000Z_0_0')
@@ -48,5 +48,12 @@ class ApiDemo(TestCase):
         product_name = 'ore'
         MeDruidHelper.post_to_tranquility(MarketEvent('trade', product_name, 'South Land', 500, 'Russia', -10, 16.7))
         time.sleep(1)
-        event = MeDruidHelper.select_one_market_event(product_name)
+        event = MeDruidHelper().select_one_market_event(product_name)
         print event
+
+    def test_positions_query(self):
+        delta = MeDruidHelper().positions_delta(product_name='copper', min_num_employees=1000,
+                                                start_dt=datetime(year=2016, month=02, day=01),
+                                                end_dt=datetime(year=2016, month=07, day=10))
+
+        print delta
