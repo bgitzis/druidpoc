@@ -3,6 +3,39 @@
     {
       "spec": {
         "dataSchema": {
+          "dataSource": "pageviews1",
+          "parser": {
+            "type": "string",
+            "parseSpec": {
+              "timestampSpec": {"column": "time", "format": "auto"},
+              "dimensionsSpec": {
+                "dimensions": ["url", "user"]
+              },
+              "format": "json"
+            }
+          },
+          "granularitySpec": {"type": "uniform", "segmentGranularity": "hour", "queryGranularity": "none"},
+          "metricsSpec": [
+            {"name": "count", "type": "count"},
+            {"name": "latencyMs", "type": "doubleSum", "fieldName": "latencyMs"}
+          ]
+        },
+        "ioConfig": {"type": "realtime"},
+        "tuningConfig": {
+          "type": "realtime",
+          "maxRowsInMemory": "1000",
+          "intermediatePersistPeriod": "PT10S",
+          "windowPeriod": "P10D"
+        }
+      },
+      "properties": {
+        "task.partitions": "1",
+        "task.replicants": "1"
+      }
+    },
+    {
+      "spec": {
+        "dataSchema": {
           "dataSource": "marketevents",
           "parser": {
             "type": "string",
@@ -27,8 +60,8 @@
         "tuningConfig": {
           "type": "realtime",
           "maxRowsInMemory": "1000",
-          "intermediatePersistPeriod": "PT10S",
-          "windowPeriod": "P30D"
+          "intermediatePersistPeriod": "PT30S",
+          "windowPeriod": "PT30S"
         }
       },
       "properties": {
