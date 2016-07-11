@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import requests
 from pydruid.client import PyDruid
@@ -25,14 +25,10 @@ def query_druid():
     return query.result
 
 
-def two_minutes_ago():
-    return datetime.utcnow() - timedelta(minutes=2)
-
-
 def load_record():
     # {"time": "2000-01-01T00:00:00Z", "url": "/foo/bar", "user": "bob" , "latencyMs": 45}
     # {"time": "2016-07-09T17:03:33Z", "url": "/foo/bar", "user": "phil", "latencyMs": 32}
-    record = {"time": two_minutes_ago().strftime("%Y-%m-%dT%H:%M:%SZ"),
+    record = {"time": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
               "url": "/foo/bar",
               "user": "ethan",
               "latencyMs": 32}
