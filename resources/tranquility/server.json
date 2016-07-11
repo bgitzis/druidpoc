@@ -49,7 +49,7 @@
               "format": "json"
             }
           },
-          "granularitySpec": {"type": "uniform", "segmentGranularity": "hour", "queryGranularity": "none"},
+          "granularitySpec": {"type": "uniform", "segmentGranularity": "SECOND", "queryGranularity": "none"},
           "metricsSpec": [
             {"name": "count", "type": "count"},
             {"name": "qty", "type": "longMax", "fieldName": "qty"},

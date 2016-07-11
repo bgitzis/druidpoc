@@ -1,4 +1,5 @@
 import random
+import time
 from copy import copy
 from datetime import datetime, timedelta
 from unittest import TestCase
@@ -43,8 +44,8 @@ class ApiDemo(TestCase):
         MeDruidHelper.shutdown_streaming_task('index_realtime_marketevents_2016-07-11T10%3A00%3A00.000Z_0_0')
 
     def test_streaming(self):
-        product_name = 'bronze'
+        product_name = 'ore'
         MeDruidHelper.post_to_tranquility(MarketEvent('trade', product_name, 'South Land', 500, 'Russia', -10, 16.7))
-        MeDruidHelper.post_to_tranquility(MarketEvent('trade', product_name, 'South Land', 500, 'Russia', 50, 16.9))
+        time.sleep(1)
         event = MeDruidHelper.select_one_market_event(product_name)
         print event
