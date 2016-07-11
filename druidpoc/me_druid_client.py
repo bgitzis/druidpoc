@@ -126,16 +126,19 @@ class MeDruidHelper(object):
         :type start_dt: datetime
         :type end_dt: datetime
         """
-        f1 = ((Dimension('product_name') == product_name) & (Dimension('customer_num_employees') > min_num_employees))
         query = self.client.timeseries(
             datasource=TABLE_NAME,
             granularity='month',
             intervals=[start_dt.strftime(YMD_FORMAT) + '/' + end_dt.strftime(YMD_FORMAT)],
-            filter=f1,
+            filter=((Dimension('product_name') == product_name) &
+                    (Dimension('customer_num_employees') > min_num_employees)),
             aggregations={"qty": doublesum("qty")},
         )
-
-        return query.result
+        print query.result
+        delta = 0
+        for item in query.result:
+            delta += item['result']['qty']
+        return delta
 
     @staticmethod
     def yesterday():
