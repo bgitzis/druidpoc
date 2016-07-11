@@ -1,0 +1,44 @@
+{
+  "type": "index_hadoop",
+  "spec": {
+    "ioConfig": {
+      "type": "hadoop",
+      "inputSpec": {
+        "type": "static", "paths": "/mnt/hgfs/G/work/marketevents.json"
+      }
+    },
+    "dataSchema": {
+      "dataSource": "marketevents",
+      "granularitySpec": {
+        "type": "uniform",
+        "segmentGranularity": "day",
+        "queryGranularity": "none",
+        "intervals": ["2015-09-12/2017-09-13"]
+      },
+      "parser": {
+        "type": "string",
+        "parseSpec": {
+          "format": "json",
+          "dimensionsSpec": {
+            "dimensions": [
+              "record_type", "customer_name", "product_name", "customer_num_employees", "customer_location"
+            ]
+          },
+          "timestampSpec": {"column": "time", "format": "auto"}
+        }
+      },
+      "metricsSpec": [
+        {"name": "count", "type": "count"},
+        {"name": "price", "type": "longMax", "fieldName": "price"},
+        {"name": "qty", "type": "longMax", "fieldName": "qty"},
+        {"name": "customer_unique", "type": "hyperUnique", "fieldName": "customer"},
+        {"name": "product_unique", "type": "hyperUnique", "fieldName": "product"}
+      ]
+    },
+    "tuningConfig": {
+      "type": "hadoop",
+      "partitionsSpec": {"type": "hashed", "targetPartitionSize": 5000000},
+      "jobProperties": {}
+    }
+  }
+}

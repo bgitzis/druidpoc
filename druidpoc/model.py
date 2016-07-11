@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 
+DT_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+
 VALID_RECORD_TYPES = {'trade', 'sell_order', 'buy_order'}
 
 
@@ -30,7 +32,7 @@ class MarketEvent(object):
             raise TypeError('price must positive non zero, got %d' % price)
         self.price = price
         if time is None:
-            self.time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            self.time = datetime.utcnow().strftime(DT_FORMAT)
         else:
             self.time = time
 
